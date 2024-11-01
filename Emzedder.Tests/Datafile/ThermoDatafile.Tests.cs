@@ -1,13 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Emzedder.Datafile;
 
-using Emzedder.Datafile;
-using Moq;
-
-using ThermoFisher.CommonCore.Data.Interfaces;
 
 
 namespace Emzedder.Tests.Datafile
