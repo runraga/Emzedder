@@ -8,6 +8,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Accord.Math" Version="3.8.0" />
+    <PackageReference Include="Accord.Statistics" Version="3.8.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Reference Include="ThermoRawFileReader">
       <HintPath>..\libs\ThermoRawFileReader.dll</HintPath>
     </Reference>
