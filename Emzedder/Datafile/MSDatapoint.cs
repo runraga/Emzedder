@@ -9,6 +9,6 @@ namespace Emzedder.Datafile
     public class MSDatapoint
     {
         public double Mz { get; init; }
-        public double Intenstiy { get; init; }
+        public double Intensity { get; init; }
     }
 }
