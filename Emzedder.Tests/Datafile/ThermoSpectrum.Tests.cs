@@ -15,16 +15,11 @@ namespace Emzedder.Tests.Datafile
         public bool Equals(MSDatapoint? x, MSDatapoint? y)
         {
             if (x == null || y == null) return false;
-            //return Math.Round(x.Mz, 4) == Math.Round(y.Mz, 4) && Math.Round(x.Intensity, 4) == Math.Round(y.Intensity, 4);
             return x.Mz == y.Mz && x.Intensity == y.Intensity;
-
         }
 
         public int GetHashCode(MSDatapoint obj)
         {
-            int mzHash = Math.Round((double)obj.Mz, 4).GetHashCode();
-            int intensityHash = Math.Round((double)obj.Intensity, 4).GetHashCode();
-
             return obj.Mz.GetHashCode() ^ obj.Intensity.GetHashCode();
         }
     }
@@ -36,8 +31,8 @@ namespace Emzedder.Tests.Datafile
             //Arrange
             var rawData = RawFileReaderAdapter.FileFactory(_validFilePath);
             rawData.SelectInstrument(Device.MS, 1);
-            var scanStatistics = rawData.GetScanStatsForScanNumber(_scanNumber);
-            SegmentedScan segmentedScan = rawData.GetSegmentedScanFromScanNumber(_scanNumber, scanStatistics);
+            var scanStatistics = rawData.GetScanStatsForScanNumber(_profileScanNumber);
+            SegmentedScan segmentedScan = rawData.GetSegmentedScanFromScanNumber(_profileScanNumber, scanStatistics);
 
 
 
@@ -46,6 +41,24 @@ namespace Emzedder.Tests.Datafile
 
             //Assert
             Assert.Equal(ExpectedMsSpectrumDatapoints, thermoSpectrum.ProfileData, new MSDatapointComparer());
+
+        }
+        [Fact]
+        public void Constructor_TakesCentroidStream_GivesCorrectCentroidData()
+        {
+            //Arrange
+            var rawData = RawFileReaderAdapter.FileFactory(_validFilePath);
+            rawData.SelectInstrument(Device.MS, 1);
+            var scanStatistics = rawData.GetScanStatsForScanNumber(_centroidScanNumber);
+            var centroidStream = rawData.GetCentroidStream(_centroidScanNumber, false);
+
+
+
+            //Act
+            var thermoSpectrum = new ThermoSpectrum(centroidStream);
+
+            //Assert
+            Assert.Equal(ExpectedMsMsSpectrumDatapoints, thermoSpectrum.CentroidData, new MSDatapointComparer());
 
         }
     }

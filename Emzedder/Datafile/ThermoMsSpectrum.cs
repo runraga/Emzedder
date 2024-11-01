@@ -26,6 +26,21 @@ namespace Emzedder.Datafile
             }
             ProfileData = profileData.ToArray();
         }
+        public ThermoSpectrum(CentroidStream stream)
+        {
+            List<MSDatapoint> centroidData = [];
+
+            for (int i = 0; i < stream.Length; i++)
+            {
+                MSDatapoint current = new MSDatapoint()
+                {
+                    Intensity = Math.Round(stream.Intensities[i], 4),
+                    Mz = Math.Round(stream.Masses[i], 4)
+                };
+                centroidData.Add(current);
+            }
+            CentroidData = centroidData.ToArray();
+        }
 
     }
 
