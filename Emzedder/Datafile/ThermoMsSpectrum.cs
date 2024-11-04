@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,8 +10,8 @@ namespace Emzedder.Datafile
 {
     internal class ThermoSpectrum
     {
-        public MSDatapoint[] ProfileData { get; private set; }
-        public MSDatapoint[] CentroidData { get; private set; }
+        public MSDatapoint[]? ProfileData { get; private set; }
+        public MSDatapoint[]? CentroidData { get; private set; }
 
         public ThermoSpectrum(SegmentedScan scan)
         {
@@ -25,6 +26,16 @@ namespace Emzedder.Datafile
                 });
             }
             ProfileData = profileData.ToArray();
+            ConvertToCentroid();
+        }
+        internal void ConvertToCentroid()
+        {
+            MSDatapoint[][] peaks = ThermoPeakDetectionFactory.DetectProfilePeaks(ProfileData!);
+            CentroidData = peaks.Select(profilePeak =>
+                ThermoPeakDetectionFactory.CalcWeightedAverageCentroid(profilePeak)
+            ).ToArray();
+
+
         }
         public ThermoSpectrum(CentroidStream stream)
         {

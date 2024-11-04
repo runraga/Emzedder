@@ -26,7 +26,7 @@ namespace Emzedder.Tests.Datafile
 
 
         [Fact]
-        public void DetectProfilePeak_TakesEmptyArray_ReturnsEmpty2DArray()
+        public void DetectProfilePeaks_TakesEmptyArray_ReturnsEmpty2DArray()
         {
             var testData = ExpectedMsSpectrumDatapoints.Take(8).ToArray();
 
@@ -36,7 +36,7 @@ namespace Emzedder.Tests.Datafile
 
         }
         [Fact]
-        public void DetectProfilePeak_NoZeroIntensityBoundary_Returns2DArrayOfDatapoints()
+        public void DetectProfilePeaks_NoZeroIntensityBoundary_ReturnsCorrect2DArrayOfDatapoints()
         {
             var testData = ExpectedMsSpectrumDatapoints[8..30];
 
@@ -53,7 +53,36 @@ namespace Emzedder.Tests.Datafile
             }
 
         }
+        [Fact]
+        public void CalcWeightedAverageCentroid_GivenPeakMSDatapoint_ReturnsCorrectCentroidDatapoint()
+        {
+            var inputProfilePeak = ExpectedMsSpectrumDatapoints[8..13];
+            var expectedCentroid = new MSDatapoint()
+            {
+                Intensity = Math.Round(408985.78125, 4),
+                Mz = Math.Round(350.3694851, 4)
+            };
 
+            var calcCentroid = ThermoPeakDetectionFactory.CalcWeightedAverageCentroid(inputProfilePeak);
+
+            Assert.Equal(expectedCentroid, calcCentroid, new MSDatapointComparer());
+        }
+        [Fact]
+        public void CalcWeightedAverageCentroid_GivenSingleDatapoint_ReturnsThatDatapoint()
+        {
+            var inputProfilePeak = new MSDatapoint[1];
+            inputProfilePeak[0] = ExpectedMsSpectrumDatapoints[8];
+
+            var expectedCentroid = new MSDatapoint()
+            {
+                Intensity = Math.Round(212817.03125, 4),
+                Mz = Math.Round(350.3675951, 4)
+            };
+
+            var calcCentroid = ThermoPeakDetectionFactory.CalcWeightedAverageCentroid(inputProfilePeak);
+
+            Assert.Equal(expectedCentroid, calcCentroid, new MSDatapointComparer());
+        }
         //TODO: need to revisit this once better gaussian fit approach is found
         //current expected values from ChatGPT
         //what is best way to implelemetn gaussian fit checking?
