@@ -38,7 +38,6 @@ namespace Emzedder.Datafile
             }
             return [.. peaks];
         }
-        //this calculates the weighted centroid for m/z and takes the intensity from the most intense datapoint
         internal static MSDatapoint CalcWeightedAverageCentroid(MSDatapoint[] profilePeak)
         {
             var numerator = profilePeak.Sum(p => p.Intensity * p.Mz);
@@ -49,6 +48,7 @@ namespace Emzedder.Datafile
             var maxIntensity = Math.Round(profilePeak.Max(p => p.Intensity), 4);
             return new MSDatapoint() { Intensity = maxIntensity, Mz = centroidMz };
         }
+
         //TODO: native gaussian fitting approach takes too long, need to explore options with python?
         //internal static async Task<MSDatapoint> FitGaussianAsync(MSDatapoint[] profilePeak)
         //{
@@ -96,5 +96,6 @@ namespace Emzedder.Datafile
         //        return new MSDatapoint() { Mz = centroidMz, Intensity = centroidIntensity };
         //    });
         //}
+
     }
 }
