@@ -8,10 +8,12 @@ using System.Threading.Tasks;
 using ThermoFisher.CommonCore.RawFileReader;
 using ThermoFisher.CommonCore.Data.Business;
 using ThermoFisher.CommonCore.Data.Interfaces;
+using ThermoFisher.CommonCore.Data.FilterEnums;
+using Accord;
 
 namespace Emzedder.Datafile
 {
-    public class ThermoDatafile : IDatafile
+    public class ThermoDatafile
     {
         public string? FilePath { get; private set; }
         private IRawDataExtended RawData;
@@ -44,7 +46,6 @@ namespace Emzedder.Datafile
             };
             return GetChromatogram(chromSettings);
         }
-
 
         private ChromDatapoint[] GetChromatogram(ChromatogramSettings chromSettings)
         {
@@ -84,19 +85,61 @@ namespace Emzedder.Datafile
 
             return rawData;
         }
-        public MSDatapoint[] GetBPC()
+
+        public MSDatapoint[] GetMassSpectrum(int scanNumber)
         {
-            throw new NotImplementedException();
+            CheckIsValidScanNumber(scanNumber);
+
+
+            var scanFilter = RawData.GetFilterForScanNumber(scanNumber);
+            var scan = Scan.FromFile(RawData, scanNumber);
+            var spectrum = new ThermoSpectrum(scan.SegmentedScan, scan.CentroidScan);
+
+            if (scanFilter.MSOrder == MSOrderType.Ms)
+            {
+                return spectrum.ProfileData!;
+            }
+            else
+            {
+                return spectrum.CentroidData!;
+            }
+
+        }
+        private void CheckIsValidScanNumber(int scanNumber)
+        {
+            if (scanNumber < RawData.RunHeader.FirstSpectrum || scanNumber > RawData.RunHeader.LastSpectrum)
+            {
+                throw new ArgumentException("That is not a valid scan number for this file");
+            }
+
+        }
+        public double[] GetProductSpectraForMsScan(int scanNumber)
+        {
+            CheckIsValidScanNumber(scanNumber);
+            var initialCheckFilter = RawData.GetFilterForScanNumber(scanNumber);
+            if (initialCheckFilter.MSOrder != MSOrderType.Ms)
+                throw new ArgumentException("Scan number must be a valid MS spectrum");
+
+            List<double> productMasses = [];
+            int scanCursor = scanNumber + 1;
+            bool isMsMs = true;
+            while (isMsMs)
+            {
+                var scanFilter = RawData.GetFilterForScanNumber(scanCursor);
+                if (scanFilter.MSOrder == MSOrderType.Ms)
+                {
+                    isMsMs = false;
+                    continue;
+
+                }
+                var scanEvent = RawData.GetScanEventForScanNumber(scanCursor);
+                var precursor = scanEvent.GetReaction(0).PrecursorMass;
+                productMasses.Add(Math.Round(precursor, 4));
+                scanCursor++;
+
+            }
+            return [.. productMasses];
         }
 
-        public MSDatapoint[] GetTIC()
-        {
-            throw new NotImplementedException();
-        }
-
-        public MSDatapoint[] GetXIC(double mass, double tolerance, MSUnits toleranceUnit)
-        {
-            throw new NotImplementedException();
-        }
     }
 }
