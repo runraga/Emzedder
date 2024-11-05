@@ -23,6 +23,17 @@ namespace Emzedder.Datafile
         {
             return IsotopePeaks.ToArray();
         }
+        public void AddGroup(IsotopeGroup g)
+        {
+            if (Charge != g.Charge)
+                throw new ArgumentException("Charges must match to combine isotope groups");
+            IsotopePeaks = IsotopePeaks.Union(g.IsotopePeaks).ToList();
+
+        }
+        public bool IsEmpty()
+        {
+            return IsotopePeaks.Count == 0 ? true : false;
+        }
 
     }
 }
