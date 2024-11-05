@@ -128,7 +128,7 @@ namespace Emzedder.Tests.Datafile
             var expectedFirstPrecursorMass = 1322.5056;
             var expectedLastPrecursorMass = 727.8637;
 
-            var productPrecursorMasses = df.GetProductSpectraForMsScan(scanNumber);
+            var productPrecursorMasses = df.GetProductMassesForMsScan(scanNumber);
             var actualCount = productPrecursorMasses.Length;
 
             Assert.Equal(expectedProductCount, actualCount);
@@ -144,8 +144,8 @@ namespace Emzedder.Tests.Datafile
             var scanNumberLow = -5;
             var scanNumberHigh = 1000000000;
 
-            Assert.Throws<ArgumentException>(() => df.GetProductSpectraForMsScan(scanNumberLow));
-            Assert.Throws<ArgumentException>(() => df.GetProductSpectraForMsScan(scanNumberHigh));
+            Assert.Throws<ArgumentException>(() => df.GetProductMassesForMsScan(scanNumberLow));
+            Assert.Throws<ArgumentException>(() => df.GetProductMassesForMsScan(scanNumberHigh));
 
 
         }
@@ -155,7 +155,7 @@ namespace Emzedder.Tests.Datafile
             var df = new ThermoDatafile(_validFilePath);
             var scanNumber = 7702;
 
-            var productPrecursorMasses = df.GetProductSpectraForMsScan(scanNumber);
+            var productPrecursorMasses = df.GetProductMassesForMsScan(scanNumber);
 
             Assert.Empty(productPrecursorMasses);
 
