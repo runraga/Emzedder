@@ -15,17 +15,7 @@ namespace Emzedder.Datafile
 
         public ThermoSpectrum(SegmentedScan scan)
         {
-            List<MSDatapoint> profileData = [];
-            for (int i = 0; i < scan.PositionCount; i++)
-            {
-
-                profileData.Add(new MSDatapoint()
-                {
-                    Intensity = Math.Round(scan.Intensities[i], 4),
-                    Mz = Math.Round(scan.Positions[i], 4)
-                });
-            }
-            ProfileData = profileData.ToArray();
+            PopulateProfileFromSegmentScan(scan);
             ConvertToCentroid();
         }
         internal void ConvertToCentroid()
@@ -39,6 +29,15 @@ namespace Emzedder.Datafile
         }
         public ThermoSpectrum(CentroidStream stream)
         {
+            PopulateCentroidsFromStream(stream);
+        }
+        public ThermoSpectrum(SegmentedScan scan, CentroidStream stream)
+        {
+            PopulateCentroidsFromStream(stream);
+            PopulateProfileFromSegmentScan(scan);
+        }
+        private void PopulateCentroidsFromStream(CentroidStream stream)
+        {
             List<MSDatapoint> centroidData = [];
 
             for (int i = 0; i < stream.Length; i++)
@@ -51,6 +50,20 @@ namespace Emzedder.Datafile
                 centroidData.Add(current);
             }
             CentroidData = centroidData.ToArray();
+        }
+        private void PopulateProfileFromSegmentScan(SegmentedScan scan)
+        {
+            List<MSDatapoint> profileData = [];
+            for (int i = 0; i < scan.PositionCount; i++)
+            {
+
+                profileData.Add(new MSDatapoint()
+                {
+                    Intensity = Math.Round(scan.Intensities[i], 4),
+                    Mz = Math.Round(scan.Positions[i], 4)
+                });
+            }
+            ProfileData = profileData.ToArray();
         }
 
     }
