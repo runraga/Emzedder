@@ -20,35 +20,34 @@ namespace Emzedder.Datafile
         {
             CentroidPeaks = centroidPeaks;
         }
-        //public IsotopeGroup[] GroupIsotopes(MSDatapoint[] centroidPeaks)
-        //{
-        //    List<IsotopeGroup> isotopeGroups = [];
-        //    HashSet<MSDatapoint> inIsotopeGroup = [];
-        //    MSDatapoint[] intensityOrdered = centroidPeaks.OrderByDescending(p => p.Intensity).ToArray();
-        //    foreach (MSDatapoint p in intensityOrdered)
-        //    {
-        //        if (inIsotopeGroup.Contains(p))
-        //        {
-        //            continue;
-        //        }
-        //        int startingChargeState = 0;
-        //        var group = FindIsotopes(p, startingChargeState);
-        //        if (inIsotopeGroup.Contains(p))
-        //        {
-        //            var groupDown = FindIsotopes(p, group.ChargeState, true);
-        //            group.AddGroup(groupDown);
-        //        }
+        internal IsotopeGroup[] GroupIntoIsotopeEnvelopes()
+        {
+            List<IsotopeGroup> isotopeGroups = [];
+            MSDatapoint[] intensityOrdered = CentroidPeaks.OrderByDescending(p => p.Intensity).ToArray();
+            foreach (MSDatapoint p in intensityOrdered)
+            {
+                if (PeaksInGroup.Contains(p))
+                {
+                    continue;
+                }
+                int startingChargeState = 0;
+                var group = FindIsotopes(p, startingChargeState);
+                if (PeaksInGroup.Contains(p))
+                {
+                    var groupDown = FindIsotopes(p, group.Charge, true);
+                    group.AddGroup(groupDown);
+                }
 
-        //        if (!group.IsEmpty())
-        //        {
+                if (!group.IsEmpty())
+                {
 
-        //            isotopeGroups.Add(group);
-        //        }
+                    isotopeGroups.Add(group);
+                }
 
-        //    }
+            }
 
-        //    return [.. isotopeGroups];
-        //}
+            return [.. isotopeGroups];
+        }
         public IsotopeGroup FindIsotopes(MSDatapoint currentPeak,
                                      int isotopeCharge,
                                      bool checkDown = false,

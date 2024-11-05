@@ -85,7 +85,6 @@ namespace Emzedder.Tests.Datafile
 
             Assert.Equal(expected, neighbours);
         }
-
         [Fact]
         public void FindIsotope_GivenTwoIsotopesOfCharge1_ReturnsCorrectIsotopeGroup()
         {
@@ -312,7 +311,6 @@ namespace Emzedder.Tests.Datafile
         [Fact]
         public void FindIsotopes_GivenOverlappingIsotopePeaks_ReturnsCorrectPeaksAboveCurrent()
         {
-            //Arrange
             var rawData = RawFileReaderAdapter.FileFactory(_validFilePath);
             rawData.SelectInstrument(Device.MS, 1);
             var scanStatistics = rawData.GetScanStatsForScanNumber(_profileScanNumber);
@@ -322,78 +320,86 @@ namespace Emzedder.Tests.Datafile
                                            .OrderBy(p => p.Mz)
                                            .ToArray();
             var currentPeak = centroidPeaks.OrderByDescending(p => p.Intensity).First();
+            int expectedChargeState = 6;
+            int expectedIsotopePeakCount = 4;
 
-            //Act
             var isotopeService = new IsotopeDetectionService(centroidPeaks);
             var isotopePeaks = isotopeService.FindIsotopes(currentPeak, 0);
 
-            //Assert
-            Assert.Equal(4, isotopePeaks.GetIsotopeGroup().Length);
+            Assert.Equal(expectedChargeState, isotopePeaks.Charge);
+            Assert.Equal(expectedIsotopePeakCount, isotopePeaks.GetIsotopeGroup().Length);
         }
-        //TODO this will only happen when calling 
-        //[Fact]
-        //public void FindIsotope_GivenLowerMzAndHigherMzPeaksOfLowerIntensity_FindsAllIsotopes()
-        //{
-        //    var point1 = new MSDatapoint()
-        //    {
-        //        Mz = 1.0,
-        //        Intensity = 1000000
-        //    };
-        //    var point2 = new MSDatapoint()
-        //    {
-        //        Mz = 2,
-        //        Intensity = 1200000
-        //    };
-        //    var point3 = new MSDatapoint()
-        //    {
-        //        Mz = 3,
-        //        Intensity = 20000000
-        //    };
-        //    var point4 = new MSDatapoint()
-        //    {
-        //        Mz = 4,
-        //        Intensity = 1200000
-        //    };
-        //    var point5 = new MSDatapoint()
-        //    {
-        //        Mz = 5,
-        //        Intensity = 1000000
-        //    };
+        [Fact]
+        public void FindIsotope_GivenPeaksAboveAndBelowCurrent_FindsAllRealtedIsotopes()
+        {
+            var point1 = new MSDatapoint()
+            {
+                Mz = 1.0,
+                Intensity = 1000000
+            };
+            var point2 = new MSDatapoint()
+            {
+                Mz = 2,
+                Intensity = 1200000
+            };
+            var point3 = new MSDatapoint()
+            {
+                Mz = 3,
+                Intensity = 20000000
+            };
+            var point4 = new MSDatapoint()
+            {
+                Mz = 4,
+                Intensity = 1200000
+            };
+            var point5 = new MSDatapoint()
+            {
+                Mz = 5,
+                Intensity = 1000000
+            };
 
-        //    var isotopeService = new IsotopeDetectionService([point1, point2, point3, point4, point5]);
-        //    var isotopeGroup = isotopeService.FindIsotopes(point3, 0, false);
+            var isotopeService = new IsotopeDetectionService([point1, point2, point3, point4, point5]);
+            var isotopeGroup = isotopeService.GroupIntoIsotopeEnvelopes();
 
-        //    Assert.Equal(1, isotopeGroup.Charge);
-        //    Assert.Contains(point1, isotopeGroup.GetIsotopeGroup());
-        //    Assert.Contains(point2, isotopeGroup.GetIsotopeGroup());
-        //    Assert.Contains(point3, isotopeGroup.GetIsotopeGroup());
-        //    Assert.Contains(point4, isotopeGroup.GetIsotopeGroup());
-        //    Assert.Contains(point5, isotopeGroup.GetIsotopeGroup());
+            Assert.Single(isotopeGroup);
+            Assert.Equal(5, isotopeGroup[0].GetIsotopeGroup().Length);
+            Assert.Equal(1, isotopeGroup[0].Charge);
 
-        //}
+        }
+        [Fact]
+        public void FindIsotope_OverlappingDistributions_FindsAllIsotopeGroups()
+        {
+            var rawData = RawFileReaderAdapter.FileFactory(_validFilePath);
+            rawData.SelectInstrument(Device.MS, 1);
+            var scanStatistics = rawData.GetScanStatsForScanNumber(_profileScanNumber);
+            var centroidStream = rawData.GetCentroidStream(_profileScanNumber, false);
+            var thermoSpectrum = new ThermoSpectrum(centroidStream);
+            var centroidPeaks = thermoSpectrum.CentroidData!.Where(p => p.Mz > 1056 && p.Mz < 1060.0)
+                                           .OrderBy(p => p.Mz)
+                                           .ToArray();
+            var currentPeak = centroidPeaks.OrderByDescending(p => p.Intensity).First();
+            int expectedChargeState1 = 6;
+            int expectedIsotopePeakCount1 = 8;
+
+            int expectedChargeState2 = 5;
+            int expectedIsotopePeakCount2 = 12;
+
+            int expectedIsotopeGroups = 2;
+
+            var isotopeService = new IsotopeDetectionService(centroidPeaks);
+            var isotopeGroups = isotopeService.GroupIntoIsotopeEnvelopes();
+
+            Assert.Equal(expectedIsotopeGroups, isotopeGroups.Length);
+
+            Assert.Equal(expectedChargeState2, isotopeGroups[0].Charge);
+            Assert.Equal(expectedChargeState1, isotopeGroups[1].Charge);
+
+            Assert.Equal(expectedIsotopePeakCount2, isotopeGroups[0].GetIsotopeGroup().Length);
+            Assert.Equal(expectedIsotopePeakCount1, isotopeGroups[1].GetIsotopeGroup().Length);
+
+        }
 
 
-        //[Fact]
-        //public void GroupIsotopes_GivenTwoDatapointsWith1OverNGap_ReturnsOneIsotopeGroupWithCorrectCharge()
-        //{
-        //    var point1 = new MSDatapoint()
-        //    {
-        //        Mz = 1.0,
-        //        Intensity = 1234
-        //    };
-        //    var point2 = new MSDatapoint()
-        //    {
-        //        Mz = 2.0,
-        //        Intensity = 1234
-        //    };
-        //    var expected = new IsotopeGroup(1);
-        //    expected.AddIsotope(point1);
-        //    expected.AddIsotope(point2);
 
-        //    var groups = new IsotopeDetectionService().GroupIsotopes([point1, point2]);
-
-        //    Assert.Single(groups);
-
-        //    Assert.Equal(expected.Charge, groups[0].Charge);
     }
 }
