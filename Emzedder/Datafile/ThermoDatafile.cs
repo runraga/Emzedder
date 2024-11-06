@@ -103,7 +103,9 @@ namespace Emzedder.Datafile
                 {
                     Intensity = chromTrace.Intensities[i],
                     RetentionTime = chromTrace.Times[i],
-                    BasePeakMass = chromTrace.SignalBasePeakMasses[i]
+                    BasePeakMass = chromTrace.SignalBasePeakMasses[i],
+                    Scan = chromTrace.Scans[i]
+
                 });
             }
             return datapoints.ToArray();
@@ -113,7 +115,7 @@ namespace Emzedder.Datafile
             var rawData = RawFileReaderAdapter.FileFactory(filePath);
             try
             {
-                FilePath = rawData.Path;
+                FilePath = filePath;
             }
             catch
             {
