@@ -2,6 +2,8 @@
 using ScottPlot;
 using System.Windows;
 using Emzedder.Datafile;
+using EmzedderViewer.Services;
+using EmzedderViewer.Listeners;
 
 namespace EmzedderViewer.Views
 {
@@ -11,12 +13,15 @@ namespace EmzedderViewer.Views
     public partial class MassSpectrumWindow : Window
     {
         private ChromatogramViewModel _viewModel;
+        private MSPlotListeners _msPlotListeners { get; init; }
+
 
         public MassSpectrumWindow(ChromatogramViewModel chromVM, int spectrumScanNumber)
         {
             _viewModel = chromVM;
             InitializeComponent();
-            PlotSpectrum(spectrumScanNumber);
+            _msPlotListeners = new MSPlotListeners(MassSpectrum1, _viewModel);
+            _msPlotListeners.RegisterPlot(spectrumScanNumber);
 
         }
         private void PlotSpectrum(int spectrumNumber)
@@ -31,8 +36,8 @@ namespace EmzedderViewer.Views
             //BpcChromatogram.LineColor = 
             spectrumPlot.LineWidth = 2;
             MassSpectrum1.Plot.HideGrid();
-            MassSpectrum1.Plot.Axes.SetLimits(0, xData.Max(), 0, yData.Max());
-            //SetupPlotMouseActions();
+            MassSpectrum1.Plot.Axes.SetLimits(xData.Min(), xData.Max(), yData.Min(), yData.Max());
+            PlotConfigurationFactory.SetZoomBehaviour(MassSpectrum1);
             MassSpectrum1.Refresh();
             //_verticalHair = MassSpectrum1.Plot.Add.VerticalLine(1);
         }

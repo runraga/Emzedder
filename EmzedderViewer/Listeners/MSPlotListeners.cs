@@ -3,10 +3,13 @@ using ScottPlot;
 using System.Windows.Input;
 using ScottPlot.WPF;
 using EmzedderViewer.ModelViews;
+using Emzedder.Datafile;
+
 using System.ComponentModel;
 using Point = System.Windows.Point;
 using EmzedderViewer.Views;
 using EmzedderViewer.Services;
+using Accord;
 
 
 namespace EmzedderViewer.Listeners
@@ -14,22 +17,31 @@ namespace EmzedderViewer.Listeners
     /// <summary>
     /// Collection of Listeners concerned with updating behaviour and appearence of WpfPlot in the ScottPlot package
     /// </summary>
-    public class ChromPlotListeners
+    public class MSPlotListeners
     {
         private readonly WpfPlot _plot;
-        private Scatter? _chrom;
+        private Scatter? _spectrumSeries;
         private VerticalLine? _verticalHair;
         private ChromatogramViewModel _chromVM;
+        private MSDatapoint[] _spectrum;
 
 
-        public ChromPlotListeners(WpfPlot plot, ChromatogramViewModel chromVM)
+        public MSPlotListeners(WpfPlot plot, ChromatogramViewModel chromVM)
         {
             _plot = plot;
             _chromVM = chromVM;
-            _chromVM.PropertyChanged += ChromVM_ChromatogramChanged;
+            //_chromVM.PropertyChanged += ChromVM_ChromatogramChanged;
             _plot.Plot.RenderManager.AxisLimitsChanged += ChromPlot_ZoomChanged;
-            _plot.MouseMove += ChromPlot_UpdateVerticalLineTracker;
-            _plot.MouseRightButtonDown += ChromPlot_RightClick;
+            //_plot.MouseMove += ChromPlot_UpdateVerticalLineTracker;
+            //_plot.MouseRightButtonDown += ChromPlot_RightClick;
+        }
+        public void RegisterPlot(int scanNumber)
+        {
+            _spectrum = _chromVM.GetMsSpectrum(scanNumber);
+            double[] xData = _spectrum.Select(d => d.Mz).ToArray();
+            double[] yData = _spectrum.Select(d => d.Intensity).ToArray();
+            PlotSpectrum(xData, yData);
+
         }
         /// <summary>
         /// Detects right mouse clicks on plot and shows nearest spectrum in X direction.
@@ -40,6 +52,7 @@ namespace EmzedderViewer.Listeners
             Pixel mousePixel = new(mousePoint.X * _plot.DisplayScale, mousePoint.Y * _plot.DisplayScale);
             Coordinates mouseLocation = _plot.Plot.GetCoordinates(mousePixel);
             int nearestScan = _chromVM.GetNearestScanNumber(mouseLocation.X);
+            Console.WriteLine($"Nearest scan: {nearestScan}");
             MassSpectrumWindow msWindow = new MassSpectrumWindow(_chromVM, nearestScan);
             msWindow.Show();
         }
@@ -48,13 +61,14 @@ namespace EmzedderViewer.Listeners
         /// </summary>
         private void ChromPlot_ZoomChanged(Object? sender, RenderDetails e)
         {
-            if (_chrom != null)
+            if (_spectrumSeries != null)
             {
-                var dataLimits = _chrom.Data.GetLimits();
+                Console.WriteLine("mass spec zooming");
+                var dataLimits = _spectrumSeries.Data.GetLimits();
                 AxisLimits limits = _plot.Plot.Axes.GetLimits();
                 double bottom = limits.Bottom < 0 ? 0 : limits.Bottom;
                 double top = limits.Top > dataLimits.Top ? dataLimits.Top : limits.Top;
-                double left = limits.Left < 0 ? 0 : limits.Left;
+                double left = limits.Left < dataLimits.Left ? dataLimits.Left : limits.Left;
                 double right = limits.Right > dataLimits.Right ? dataLimits.Right : limits.Right;
                 _plot.Plot.Axes.SetLimits(left, right, bottom, top);
             }
@@ -85,18 +99,23 @@ namespace EmzedderViewer.Listeners
             {
                 double[] xData = vm.GetCurrentChromXData();
                 double[] yData = vm.GetCurrentChromYData();
-                _plot.Plot.Clear();
-                _chrom = _plot.Plot.Add.Scatter(xData, yData);
-                _chrom.LineColor = Colors.Blue;
-                _chrom.MarkerSize = 0;
-                _chrom.LineWidth = 2;
-                _plot.Plot.HideGrid();
-                _plot.Plot.Axes.SetLimits(0, xData.Max(), 0, yData.Max());
-                PlotConfigurationFactory.SetZoomBehaviour(_plot);
-                _plot.Refresh();
-                _verticalHair = _plot.Plot.Add.VerticalLine(1);
-            }
+                PlotSpectrum(xData, yData);
 
+
+            }
+        }
+        private void PlotSpectrum(double[] xData, double[] yData)
+        {
+            _plot.Plot.Clear();
+            _spectrumSeries = _plot.Plot.Add.Scatter(xData, yData);
+            _spectrumSeries.LineColor = Colors.Blue;
+            _spectrumSeries.MarkerSize = 0;
+            _spectrumSeries.LineWidth = 2;
+            _plot.Plot.HideGrid();
+            _plot.Plot.Axes.SetLimits(xData.Min(), xData.Max(), yData.Min(), yData.Max());
+            PlotConfigurationFactory.SetZoomBehaviour(_plot);
+            _plot.Refresh();
+            //_verticalHair = _plot.Plot.Add.VerticalLine(1);
         }
 
     }

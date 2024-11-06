@@ -11,6 +11,7 @@ namespace EmzedderViewer.ModelViews
         public ICommand OpenDataFileCommand { get; }
         private ThermoDatafile _datafile;
         private ChromDatapoint[] _currentChrom;
+
         private ChromatogramType _selectedChromatogramType;
         public ObservableCollection<ChromatogramType> ChromatogramTypeOptions { get; } =
         [
