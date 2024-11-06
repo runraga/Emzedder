@@ -7,6 +7,7 @@ using System.ComponentModel;
 using Point = System.Windows.Point;
 using EmzedderViewer.Views;
 using EmzedderViewer.Services;
+using OpenTK.Graphics.OpenGL;
 
 
 namespace EmzedderViewer.Listeners
@@ -29,6 +30,7 @@ namespace EmzedderViewer.Listeners
             _chromVM.PropertyChanged += ChromVM_ChromatogramChanged;
             _plot.Plot.RenderManager.AxisLimitsChanged += ChromPlot_ZoomChanged;
             _plot.MouseMove += ChromPlot_UpdateVerticalLineTracker;
+            _plot.MouseMove += MouseMove_ShowTooltip;
             _plot.MouseRightButtonDown += ChromPlot_RightClick;
         }
         /// <summary>
@@ -36,13 +38,12 @@ namespace EmzedderViewer.Listeners
         /// </summary>
         private void ChromPlot_RightClick(Object? sender, MouseEventArgs e)
         {
-            Point mousePoint = e.GetPosition(_plot);
-            Pixel mousePixel = new(mousePoint.X * _plot.DisplayScale, mousePoint.Y * _plot.DisplayScale);
-            Coordinates mouseLocation = _plot.Plot.GetCoordinates(mousePixel);
-            int nearestScan = _chromVM.GetNearestScanNumber(mouseLocation.X);
+            var (X, _) = GetMousePosition(e);
+            int nearestScan = _chromVM.GetNearestScanNumber(X);
             MassSpectrumWindow msWindow = new MassSpectrumWindow(_chromVM, nearestScan);
             msWindow.Show();
         }
+
         /// <summary>
         /// ZoomChanged listener ensures that zooming out won't go beyond the Limits of the current data
         /// </summary>
@@ -59,6 +60,22 @@ namespace EmzedderViewer.Listeners
                 _plot.Plot.Axes.SetLimits(left, right, bottom, top);
             }
         }
+        private void MouseMove_ShowTooltip(Object? sender, MouseEventArgs e)
+        {
+            if (_chrom == null) return;
+            var (mz, _) = GetMousePosition(e);
+            int nearestScan = _chromVM.GetNearestScanNumber(mz);
+            double basePeak = _chromVM.GetBasePeakMass(nearestScan).GetValueOrDefault();
+            Point mousePoint = e.GetPosition(_plot);
+            _plot.Plot.Clear<Annotation>();
+
+            var anno = _plot.Plot.Add.Annotation($"BP: {Math.Round(basePeak, 4)}\nScan: {nearestScan}");
+
+            _plot.Refresh();
+
+
+        }
+
         /// <summary>
         /// Listener to update the position of the vertical line based on mouse location
         /// </summary>
@@ -98,6 +115,12 @@ namespace EmzedderViewer.Listeners
             }
 
         }
-
+        private (double, double) GetMousePosition(MouseEventArgs e)
+        {
+            Point mousePoint = e.GetPosition(_plot);
+            Pixel mousePixel = new(mousePoint.X * _plot.DisplayScale, mousePoint.Y * _plot.DisplayScale);
+            Coordinates mouseLocation = _plot.Plot.GetCoordinates(mousePixel);
+            return (mouseLocation.X, mouseLocation.Y);
+        }
     }
 }

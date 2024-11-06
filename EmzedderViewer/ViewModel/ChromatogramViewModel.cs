@@ -3,6 +3,7 @@ using System.Windows.Input;
 using Emzedder.Datafile;
 using System.ComponentModel;
 using System.Collections.ObjectModel;
+using Accord.Math;
 
 namespace EmzedderViewer.ModelViews
 {
@@ -29,6 +30,10 @@ namespace EmzedderViewer.ModelViews
             return _currentChrom.OrderBy(d => Math.Abs(d.RetentionTime - retentionTime))
                                 .First()
                                 .Scan;
+        }
+        public double? GetBasePeakMass(int scanNumber)
+        {
+            return Array.Find(_currentChrom, d => d.Scan == scanNumber).BasePeakMass;
         }
         public ThermoDatafile Datafile
         {
@@ -108,6 +113,7 @@ namespace EmzedderViewer.ModelViews
         }
         public MSDatapoint[] GetMsSpectrum(int scanNumber)
         {
+            //TODO: need to know if is centroid spectrum or not
             return _datafile.GetMassSpectrum(scanNumber);
         }
         public event PropertyChangedEventHandler PropertyChanged;
