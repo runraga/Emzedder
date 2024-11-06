@@ -11,6 +11,7 @@ namespace Emzedder.Datafile
         public double RetentionTime { get; init; }
         public double Intensity { get; init; }
         public double BasePeakMass { get; init; }
+        public int Scan { get; init; }
 
         public bool Equals(ChromDatapoint? other)
         {
