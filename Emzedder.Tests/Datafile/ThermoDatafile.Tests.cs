@@ -82,7 +82,7 @@ namespace Emzedder.Tests.Datafile
                 Mz = Math.Round(895.353052977902, 4),
                 Intensity = Math.Round(264643.8125, 4)
             };
-            var spectrumData = df.GetMassSpectrum(scanNumber);
+            var (spectrumData, _) = df.GetMassSpectrum(scanNumber);
 
             Assert.Equal(expectedFirstDatapoint, spectrumData[0]);
             Assert.Equal(expected16152Datapoint, spectrumData[16151]);
@@ -113,7 +113,7 @@ namespace Emzedder.Tests.Datafile
                 Mz = Math.Round(905.526062011719, 4),
                 Intensity = Math.Round(56135660.0, 4)
             };
-            var spectrumData = df.GetMassSpectrum(scanNumber);
+            var (spectrumData, _) = df.GetMassSpectrum(scanNumber);
 
             Assert.Equal(expectedFirstDatapoint, spectrumData[0]);
             Assert.Equal(expected930Datapoint, spectrumData[929]);
