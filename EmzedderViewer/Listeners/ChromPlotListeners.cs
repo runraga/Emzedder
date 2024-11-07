@@ -107,6 +107,22 @@ namespace EmzedderViewer.Listeners
                 _chrom.LineColor = Colors.Blue;
                 _chrom.MarkerSize = 0;
                 _chrom.LineWidth = 2;
+
+                _plot.Plot.Axes.Bottom.Label.Text = "Time";
+                _plot.Plot.Axes.Left.Label.Text = "Intensity";
+
+                //TODO change ticks for when using normalised intensity
+                //double[] tickPositions = { 0, 50, 100 };
+                //string[] tickLabels = { "0", "%", "100" };
+                //_plot.Plot.Axes.Left.SetTicks(tickPositions, tickLabels);
+
+                Func<double, string> formatter = (y) => y.ToString("G2");
+                ScottPlot.TickGenerators.NumericAutomatic generator = new()
+                {
+                    LabelFormatter = formatter
+                };
+                _plot.Plot.Axes.Left.TickGenerator = generator;
+
                 _plot.Plot.HideGrid();
                 _plot.Plot.Axes.SetLimits(0, xData.Max(), 0, yData.Max());
                 PlotConfigurationFactory.SetZoomBehaviour(_plot);

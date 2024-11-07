@@ -17,7 +17,6 @@ namespace EmzedderViewer.ModelViews
         public ObservableCollection<ChromatogramType> ChromatogramTypeOptions { get; } =
         [
             ChromatogramType.BPC,
-            ChromatogramType.TIC,
             ChromatogramType.Unfiltered
         ];
         public ChromatogramViewModel()
@@ -113,8 +112,24 @@ namespace EmzedderViewer.ModelViews
         }
         public MSDatapoint[] GetMsSpectrum(int scanNumber)
         {
-            //TODO: need to know if is centroid spectrum or not
-            return _datafile.GetMassSpectrum(scanNumber);
+            var (datapoints, isCentroidSpectrum) = _datafile.GetMassSpectrum(scanNumber);
+            if (isCentroidSpectrum)
+            {
+                return BufferPeaksWithZeros(datapoints);
+            }
+            return datapoints;
+        }
+        public MSDatapoint[] BufferPeaksWithZeros(MSDatapoint[] datapoints)
+        {
+            List<MSDatapoint> zeroBufferedList = [];
+            foreach (MSDatapoint d in datapoints)
+            {
+                zeroBufferedList.Add(new MSDatapoint() { Mz = d.Mz, Intensity = 0 });
+                zeroBufferedList.Add(d);
+                zeroBufferedList.Add(new MSDatapoint() { Mz = d.Mz, Intensity = 0 });
+
+            }
+            return zeroBufferedList.ToArray();
         }
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
