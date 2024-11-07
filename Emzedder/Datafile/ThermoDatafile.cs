@@ -39,7 +39,7 @@ namespace Emzedder.Datafile
             };
             return GetChromatogram(chromSettings);
         }
-        public MSDatapoint[] GetMassSpectrum(int scanNumber)
+        public (MSDatapoint[], bool) GetMassSpectrum(int scanNumber)
         {
             CheckIsValidScanNumber(scanNumber);
 
@@ -47,14 +47,14 @@ namespace Emzedder.Datafile
             var scanFilter = RawData.GetFilterForScanNumber(scanNumber);
             var scan = Scan.FromFile(RawData, scanNumber);
             var spectrum = new ThermoSpectrum(scan.SegmentedScan, scan.CentroidScan);
-
-            if (scanFilter.MSOrder == MSOrderType.Ms)
+            spectrum.MSOrder = scanFilter.MSOrder;
+            if (spectrum.MSOrder == MSOrderType.Ms)
             {
-                return spectrum.ProfileData!;
+                return (spectrum.ProfileData!, false);
             }
             else
             {
-                return spectrum.CentroidData!;
+                return (spectrum.CentroidData!, true);
             }
 
         }

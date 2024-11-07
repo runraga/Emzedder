@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using ThermoFisher.CommonCore.Data.FilterEnums;
 using ThermoFisher.CommonCore.Data.Business;
 
 namespace Emzedder.Datafile
@@ -12,6 +7,7 @@ namespace Emzedder.Datafile
     {
         public MSDatapoint[]? ProfileData { get; private set; }
         public MSDatapoint[]? CentroidData { get; private set; }
+        public MSOrderType? MSOrder { get; set; }
 
         public ThermoSpectrum(SegmentedScan scan)
         {
