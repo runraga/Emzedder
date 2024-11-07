@@ -30,10 +30,7 @@ namespace EmzedderViewer.Listeners
         {
             _plot = plot;
             _chromVM = chromVM;
-            //_chromVM.PropertyChanged += ChromVM_ChromatogramChanged;
             _plot.Plot.RenderManager.AxisLimitsChanged += ChromPlot_ZoomChanged;
-            //_plot.MouseMove += ChromPlot_UpdateVerticalLineTracker;
-            //_plot.MouseRightButtonDown += ChromPlot_RightClick;
         }
         public void RegisterPlot(int scanNumber)
         {
@@ -52,7 +49,6 @@ namespace EmzedderViewer.Listeners
             Pixel mousePixel = new(mousePoint.X * _plot.DisplayScale, mousePoint.Y * _plot.DisplayScale);
             Coordinates mouseLocation = _plot.Plot.GetCoordinates(mousePixel);
             int nearestScan = _chromVM.GetNearestScanNumber(mouseLocation.X);
-            Console.WriteLine($"Nearest scan: {nearestScan}");
             MassSpectrumWindow msWindow = new MassSpectrumWindow(_chromVM, nearestScan);
             msWindow.Show();
         }
@@ -63,7 +59,6 @@ namespace EmzedderViewer.Listeners
         {
             if (_spectrumSeries != null)
             {
-                Console.WriteLine("mass spec zooming");
                 var dataLimits = _spectrumSeries.Data.GetLimits();
                 AxisLimits limits = _plot.Plot.Axes.GetLimits();
                 double bottom = limits.Bottom < 0 ? 0 : limits.Bottom;
@@ -107,11 +102,30 @@ namespace EmzedderViewer.Listeners
         private void PlotSpectrum(double[] xData, double[] yData)
         {
             _plot.Plot.Clear();
+
             _spectrumSeries = _plot.Plot.Add.Scatter(xData, yData);
+
             _spectrumSeries.LineColor = Colors.Blue;
             _spectrumSeries.MarkerSize = 0;
             _spectrumSeries.LineWidth = 2;
+
+            _plot.Plot.Axes.Bottom.Label.Text = "m/z";
+            _plot.Plot.Axes.Left.Label.Text = "Intensity";
+
+            //TODO change ticks for when using normalised intensity
+            //double[] tickPositions = { 0, 50, 100 };
+            //string[] tickLabels = { "0", "%", "100" };
+            //_plot.Plot.Axes.Left.SetTicks(tickPositions, tickLabels);
+
+            Func<double, string> formatter = (y) => y.ToString("G2");
+            ScottPlot.TickGenerators.NumericAutomatic generator = new()
+            {
+                LabelFormatter = formatter
+            };
+            _plot.Plot.Axes.Left.TickGenerator = generator;
+
             _plot.Plot.HideGrid();
+
             _plot.Plot.Axes.SetLimits(xData.Min(), xData.Max(), yData.Min(), yData.Max());
             PlotConfigurationFactory.SetZoomBehaviour(_plot);
             _plot.Refresh();
