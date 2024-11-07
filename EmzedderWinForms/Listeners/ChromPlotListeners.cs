@@ -10,7 +10,7 @@ namespace EmzedderWinForms.Listeners
     {
         private readonly FormsPlot FormsPlot;
         private readonly DatafileController DfController;
-        private Scatter Chrom;
+        private Scatter ChromScatterPlot;
         private VerticalLine? VerticalHair;
 
         public ChromPlotListeners(FormsPlot formsPlot, DatafileController dfController)
@@ -26,10 +26,10 @@ namespace EmzedderWinForms.Listeners
         public void PlotChromatogram(double[] xData, double[] yData)
         {
             FormsPlot.Plot.Clear();
-            Chrom = FormsPlot.Plot.Add.Scatter(xData, yData);
-            Chrom.LineColor = ScottPlot.Colors.Blue;
-            Chrom.MarkerSize = 0;
-            Chrom.LineWidth = 2;
+            ChromScatterPlot = FormsPlot.Plot.Add.Scatter(xData, yData);
+            ChromScatterPlot.LineColor = ScottPlot.Colors.Blue;
+            ChromScatterPlot.MarkerSize = 0;
+            ChromScatterPlot.LineWidth = 2;
 
             FormsPlot.Plot.Axes.Bottom.Label.Text = "Time";
             FormsPlot.Plot.Axes.Left.Label.Text = "Intensity";
@@ -55,9 +55,9 @@ namespace EmzedderWinForms.Listeners
 
         private void ChromPlot_ZoomChanged(Object? sender, RenderDetails e)
         {
-            if (Chrom != null)
+            if (ChromScatterPlot != null)
             {
-                var dataLimits = Chrom.Data.GetLimits();
+                var dataLimits = ChromScatterPlot.Data.GetLimits();
                 AxisLimits limits = FormsPlot.Plot.Axes.GetLimits();
                 double bottom = limits.Bottom < 0 ? 0 : limits.Bottom;
                 double top = limits.Top > dataLimits.Top ? dataLimits.Top : limits.Top;
@@ -73,9 +73,7 @@ namespace EmzedderWinForms.Listeners
 
                 var (X, _) = GetMousePosition(e);
                 int nearestScan = DfController.GetNearestScanNumber(X);
-                //MassSpectrumWindow msWindow = new MassSpectrumWindow(_chromVM, nearestScan);
-                //msWindow.Show();
-                Console.WriteLine($"nearest scan to click: {nearestScan}");
+                DfController.GetMsSpectrum(nearestScan);
             }
         }
         private (double, double) GetMousePosition(MouseEventArgs e)
@@ -86,7 +84,7 @@ namespace EmzedderWinForms.Listeners
         }
         private void MouseMove_ShowTooltip(Object? sender, MouseEventArgs e)
         {
-            if (Chrom == null) return;
+            if (ChromScatterPlot == null) return;
             var (mz, _) = GetMousePosition(e);
             int nearestScan = DfController.GetNearestScanNumber(mz);
             double basePeak = DfController.GetBasePeakMass(nearestScan).GetValueOrDefault();

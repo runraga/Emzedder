@@ -1,4 +1,5 @@
 ﻿using Emzedder.Datafile;
+using ScottPlot.WinForms;
 
 namespace EmzedderWinForms.Controller
 {
@@ -9,6 +10,7 @@ namespace EmzedderWinForms.Controller
 
         public ChromDatapoint[]? CurrentChrom;
         private readonly Form1 _view;
+        private MassSpectrumWindow SpectrumWindow;
         public DatafileController(Form1 view)
         {
             _view = view;
@@ -21,6 +23,10 @@ namespace EmzedderWinForms.Controller
             Datafile = new ThermoDatafile(filePath);
             SetChromatogram();
             PlotChromatogram();
+        }
+        public void AddSpectrumWindow(MassSpectrumWindow spectrumWindow)
+        {
+            SpectrumWindow = spectrumWindow;
         }
         private void PlotChromatogram()
         {
@@ -59,6 +65,32 @@ namespace EmzedderWinForms.Controller
         public double? GetBasePeakMass(int scanNumber)
         {
             return Array.Find(CurrentChrom, d => d.Scan == scanNumber).BasePeakMass;
+        }
+        public void GetMsSpectrum(int scanNumber)
+        {
+            var (datapoints, isCentroidSpectrum) = Datafile.GetMassSpectrum(scanNumber);
+            if (isCentroidSpectrum)
+            {
+                datapoints = BufferPeaksWithZeros(datapoints);
+            }
+            SpectrumWindow = new MassSpectrumWindow(this);
+            SpectrumWindow.Show();
+            double[] xData = datapoints.Select(d => d.Mz).ToArray();
+            double[] yData = datapoints.Select(d => d.Intensity).ToArray();
+            SpectrumWindow.PlotSpectrum(xData, yData);
+
+        }
+        public MSDatapoint[] BufferPeaksWithZeros(MSDatapoint[] datapoints)
+        {
+            List<MSDatapoint> zeroBufferedList = [];
+            foreach (MSDatapoint d in datapoints)
+            {
+                zeroBufferedList.Add(new MSDatapoint() { Mz = d.Mz, Intensity = 0 });
+                zeroBufferedList.Add(d);
+                zeroBufferedList.Add(new MSDatapoint() { Mz = d.Mz, Intensity = 0 });
+
+            }
+            return zeroBufferedList.ToArray();
         }
     }
     public enum ChromatogramType
