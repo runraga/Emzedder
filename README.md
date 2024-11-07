@@ -20,8 +20,8 @@ Current project status:
 -WinForm_GUI branch
 	- Implements chromatogram and mass spectra viewer in WinForms.
 
-### Currently development
-- Chromatogram and Mass Spec viewer in WinForms
+### Current development
+- Implement chromatogram and Mass Spec viewers in WinForms
 - Normalised Intensity for y axis 
 
 ### Future Features
