@@ -7,8 +7,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Emzedder", "Emzedder\Emzedd
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Emzedder.Tests", "Emzedder.Tests\Emzedder.Tests.csproj", "{700BA392-CE87-4B87-854A-0C48C22E7B1B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmzedderViewer", "EmzedderViewer\EmzedderViewer.csproj", "{4A25C2FB-AC49-4ECB-9A51-CBF3046E8951}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -23,10 +21,6 @@ Global
 		{700BA392-CE87-4B87-854A-0C48C22E7B1B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{700BA392-CE87-4B87-854A-0C48C22E7B1B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{700BA392-CE87-4B87-854A-0C48C22E7B1B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{4A25C2FB-AC49-4ECB-9A51-CBF3046E8951}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4A25C2FB-AC49-4ECB-9A51-CBF3046E8951}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4A25C2FB-AC49-4ECB-9A51-CBF3046E8951}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4A25C2FB-AC49-4ECB-9A51-CBF3046E8951}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

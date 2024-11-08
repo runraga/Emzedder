@@ -16,7 +16,7 @@ namespace Emzedder.Tests.Datafile
         [Fact]
         public void Constructor_NotValidThermoFile_ThrowsException()
         {
-            Assert.Throws<ArgumentOutOfRangeException>(() => new ThermoDatafile(_invalidRawFile));
+            Assert.Throws<FileLoadException>(() => new ThermoDatafile(_invalidRawFile));
         }
         [Fact]
         public void Constructor_FileInError_SetsInErrorStateCorrectly()

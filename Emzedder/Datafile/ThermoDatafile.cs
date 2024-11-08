@@ -17,8 +17,16 @@ namespace Emzedder.Datafile
             {
                 throw new FileNotFoundException("Path supplied was not a valid file");
             }
-            RawData = OpenFile(filePath);
-            RawData.SelectInstrument(Device.MS, 1);
+            try
+            {
+                RawData = OpenFile(filePath);
+                RawData.SelectInstrument(Device.MS, 1);
+
+            }
+            catch
+            {
+                throw new FileLoadException("There was an error loading that file, please check the file is of the correct type and try again.");
+            }
 
         }
 
