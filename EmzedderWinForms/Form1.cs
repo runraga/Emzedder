@@ -110,7 +110,7 @@ public partial class Form1 : Form
         Pixel mousePixel = new(e.X, e.Y);
         Coordinates mouseLocation = formsPlot1.Plot.GetCoordinates(mousePixel);
         return (mouseLocation.X, mouseLocation.Y);
-        throw new NotImplementedException();
+
     }
     public void MouseMove_ShowTooltip(Object? sender, MouseEventArgs e)
     {
