@@ -1,70 +1,65 @@
-﻿using ThermoFisher.CommonCore.Data.FilterEnums;
-using ThermoFisher.CommonCore.Data.Business;
+﻿using ThermoFisher.CommonCore.Data.Business;
+using ThermoFisher.CommonCore.Data.FilterEnums;
 
-namespace Emzedder.Datafile
+namespace Emzedder.Datafile;
+
+internal class ThermoSpectrum
 {
-    internal class ThermoSpectrum
+    public MSDatapoint[]? ProfileData { get; private set; }
+    public MSDatapoint[]? CentroidData { get; private set; }
+    public MSOrderType? MSOrder { get; set; }
+
+    public ThermoSpectrum(SegmentedScan scan)
     {
-        public MSDatapoint[]? ProfileData { get; private set; }
-        public MSDatapoint[]? CentroidData { get; private set; }
-        public MSOrderType? MSOrder { get; set; }
+        PopulateProfileFromSegmentScan(scan);
+        ConvertToCentroid();
+    }
+    internal void ConvertToCentroid()
+    {
+        MSDatapoint[][] peaks = ThermoPeakDetectionFactory.DetectProfilePeaks(ProfileData!);
+        CentroidData = peaks.Select(profilePeak =>
+            ThermoPeakDetectionFactory.CalcWeightedAverageCentroid(profilePeak)
+        ).ToArray();
 
-        public ThermoSpectrum(SegmentedScan scan)
-        {
-            PopulateProfileFromSegmentScan(scan);
-            ConvertToCentroid();
-        }
-        internal void ConvertToCentroid()
-        {
-            MSDatapoint[][] peaks = ThermoPeakDetectionFactory.DetectProfilePeaks(ProfileData!);
-            CentroidData = peaks.Select(profilePeak =>
-                ThermoPeakDetectionFactory.CalcWeightedAverageCentroid(profilePeak)
-            ).ToArray();
-
-
-        }
-        public ThermoSpectrum(CentroidStream stream)
-        {
-            PopulateCentroidsFromStream(stream);
-        }
-        public ThermoSpectrum(SegmentedScan scan, CentroidStream stream)
-        {
-            PopulateCentroidsFromStream(stream);
-            PopulateProfileFromSegmentScan(scan);
-        }
-        private void PopulateCentroidsFromStream(CentroidStream stream)
-        {
-            List<MSDatapoint> centroidData = [];
-
-            for (int i = 0; i < stream.Length; i++)
-            {
-                MSDatapoint current = new MSDatapoint()
-                {
-                    Intensity = Math.Round(stream.Intensities[i], 4),
-                    Mz = Math.Round(stream.Masses[i], 4)
-                };
-                centroidData.Add(current);
-            }
-            CentroidData = centroidData.ToArray();
-        }
-        private void PopulateProfileFromSegmentScan(SegmentedScan scan)
-        {
-            List<MSDatapoint> profileData = [];
-            for (int i = 0; i < scan.PositionCount; i++)
-            {
-
-                profileData.Add(new MSDatapoint()
-                {
-                    Intensity = Math.Round(scan.Intensities[i], 4),
-                    Mz = Math.Round(scan.Positions[i], 4)
-                });
-            }
-            ProfileData = profileData.ToArray();
-        }
 
     }
+    public ThermoSpectrum(CentroidStream stream)
+    {
+        PopulateCentroidsFromStream(stream);
+    }
+    public ThermoSpectrum(SegmentedScan scan, CentroidStream stream)
+    {
+        PopulateCentroidsFromStream(stream);
+        PopulateProfileFromSegmentScan(scan);
+    }
+    private void PopulateCentroidsFromStream(CentroidStream stream)
+    {
+        List<MSDatapoint> centroidData = [];
 
+        for (int i = 0; i < stream.Length; i++)
+        {
+            MSDatapoint current = new()
+            {
+                Intensity = Math.Round(stream.Intensities[i], 4),
+                Mz = Math.Round(stream.Masses[i], 4)
+            };
+            centroidData.Add(current);
+        }
+        CentroidData = centroidData.ToArray();
+    }
+    private void PopulateProfileFromSegmentScan(SegmentedScan scan)
+    {
+        List<MSDatapoint> profileData = [];
+        for (int i = 0; i < scan.PositionCount; i++)
+        {
 
-
+            profileData.Add(new MSDatapoint()
+            {
+                Intensity = Math.Round(scan.Intensities[i], 4),
+                Mz = Math.Round(scan.Positions[i], 4)
+            });
+        }
+        ProfileData = profileData.ToArray();
+    }
 
 }

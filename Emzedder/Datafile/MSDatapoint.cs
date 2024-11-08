@@ -1,25 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace Emzedder.Datafile;
 
-namespace Emzedder.Datafile
+public class MSDatapoint : IEquatable<MSDatapoint>
 {
-    public class MSDatapoint : IEquatable<MSDatapoint>
+    public double Mz { get; init; }
+    public double Intensity { get; init; }
+
+    public bool Equals(MSDatapoint? other)
     {
-        public double Mz { get; init; }
-        public double Intensity { get; init; }
-
-        public bool Equals(MSDatapoint? other)
-        {
-            if (other == null) return false;
-            return Mz == other.Mz && Intensity == other.Intensity;
-        }
-        public override int GetHashCode()
-        {
-            return HashCode.Combine(Mz, Intensity);
-        }
-
+        if (other == null) return false;
+        return Mz == other.Mz && Intensity == other.Intensity;
     }
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(Mz, Intensity);
+    }
+
 }

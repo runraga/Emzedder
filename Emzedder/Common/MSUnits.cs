@@ -1,11 +1,10 @@
 ﻿
 
-namespace Emzedder.Common
+namespace Emzedder.Common;
+
+public enum MSUnits
 {
-    public enum MSUnits
-    {
-        Thompson,
-        Mz,
-        PPM
-    }
+    Thompson,
+    Mz,
+    PPM
 }

@@ -1,33 +1,22 @@
 ﻿using EmzedderWinForms.Controller;
 using EmzedderWinForms.Listeners;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using System.Xml.Linq;
 
-namespace EmzedderWinForms
+namespace EmzedderWinForms;
+
+public partial class MassSpectrumWindow : Form
 {
-    public partial class MassSpectrumWindow : Form
+    private readonly DatafileController _controller;
+    private readonly MsPlotListeners _plotListeners;
+    public MassSpectrumWindow(DatafileController dfController)
     {
-        private DatafileController Controller;
-        private MsPlotListeners PlotListeners;
-        public MassSpectrumWindow(DatafileController dfController)
-        {
-            InitializeComponent();
-            Controller = dfController;
-            Controller.AddSpectrumWindow(this);
-            PlotListeners = new MsPlotListeners(massSpecPlot, dfController);
+        InitializeComponent();
+        _controller = dfController;
+        _controller.AddSpectrumWindow(this);
+        _plotListeners = new MsPlotListeners(massSpecPlot, dfController);
 
-        }
-        public void PlotSpectrum(double[] xData, double[] yData)
-        {
-            PlotListeners.PlotSpectrum(xData, yData);
-        }
+    }
+    public void PlotSpectrum(double[] xData, double[] yData)
+    {
+        _plotListeners.PlotSpectrum(xData, yData);
     }
 }
