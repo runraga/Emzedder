@@ -6,12 +6,12 @@ internal class ThermoPeakDetectionFactory
 {
     internal static MSDatapoint[][] DetectProfilePeaks(MSDatapoint[] spectrum)
     {
-        MSDatapoint[] msOrderedDatapoints = spectrum.OrderBy(d => d.Mz).ToArray();
+        MSDatapoint[] msOrderedDatapoints = [.. spectrum.OrderBy(d => d.Mz)];
         List<MSDatapoint[]> peaks = [];
         List<MSDatapoint> peak = [];
 
 
-        bool isAPeak = spectrum[0].Intensity == 0 ? false : true;
+        bool isAPeak = spectrum[0].Intensity != 0;
         for (int i = 0; i < msOrderedDatapoints.Length; i++)
         {
             double intensity = msOrderedDatapoints[i].Intensity;
@@ -33,7 +33,7 @@ internal class ThermoPeakDetectionFactory
         }
         if (peak.Count != 0)
         {
-            peaks.Add(peak.ToArray());
+            peaks.Add([.. peak]);
         }
         return [.. peaks];
     }

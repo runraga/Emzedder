@@ -11,7 +11,7 @@ public class ChromPlotListeners
     private readonly FormsPlot FormsPlot;
     private readonly DatafileController DfController;
 
-    private Scatter _chromScatterPlot;
+    private Scatter? _chromScatterPlot;
     private VerticalLine? _verticalHair;
 
     public ChromPlotListeners(FormsPlot formsPlot, DatafileController dfController)
@@ -91,7 +91,7 @@ public class ChromPlotListeners
         double basePeak = DfController.GetBasePeakMass(nearestScan).GetValueOrDefault();
         FormsPlot.Plot.Clear<Annotation>();
 
-        Annotation anno = FormsPlot.Plot.Add.Annotation($"BP: {Math.Round(basePeak, 4)}\nScan: {nearestScan}");
+        FormsPlot.Plot.Add.Annotation($"BP: {Math.Round(basePeak, 4)}\nScan: {nearestScan}");
 
         FormsPlot.Refresh();
 

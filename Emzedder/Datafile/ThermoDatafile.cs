@@ -7,9 +7,10 @@ namespace Emzedder.Datafile;
 
 public class ThermoDatafile
 {
-    public string? FilePath { get; private set; }
-    private readonly IRawDataExtended RawData;
     public bool InError { get; private set; }
+    public string? FilePath { get; private set; }
+
+    private readonly IRawDataExtended _rawData;
 
     public ThermoDatafile(string filePath)
     {
@@ -17,8 +18,8 @@ public class ThermoDatafile
         {
             throw new FileNotFoundException("Path supplied was not a valid file");
         }
-        RawData = OpenFile(filePath);
-        RawData.SelectInstrument(Device.MS, 1);
+        _rawData = OpenFile(filePath);
+        _rawData.SelectInstrument(Device.MS, 1);
 
     }
 
@@ -44,8 +45,8 @@ public class ThermoDatafile
         CheckIsValidScanNumber(scanNumber);
 
 
-        IScanFilter scanFilter = RawData.GetFilterForScanNumber(scanNumber);
-        Scan scan = Scan.FromFile(RawData, scanNumber);
+        IScanFilter scanFilter = _rawData.GetFilterForScanNumber(scanNumber);
+        Scan scan = Scan.FromFile(_rawData, scanNumber);
         ThermoSpectrum spectrum = new(scan.SegmentedScan, scan.CentroidScan)
         {
             MSOrder = scanFilter.MSOrder
@@ -65,7 +66,7 @@ public class ThermoDatafile
     public double[] GetProductMassesForMsScan(int scanNumber)
     {
         CheckIsValidScanNumber(scanNumber);
-        IScanFilter initialCheckFilter = RawData.GetFilterForScanNumber(scanNumber);
+        IScanFilter initialCheckFilter = _rawData.GetFilterForScanNumber(scanNumber);
         if (initialCheckFilter.MSOrder != MSOrderType.Ms)
             throw new ArgumentException("Scan number must be a valid MS spectrum");
 
@@ -74,14 +75,14 @@ public class ThermoDatafile
         bool isMsMs = true;
         while (isMsMs)
         {
-            IScanFilter scanFilter = RawData.GetFilterForScanNumber(scanCursor);
+            IScanFilter scanFilter = _rawData.GetFilterForScanNumber(scanCursor);
             if (scanFilter.MSOrder == MSOrderType.Ms)
             {
                 isMsMs = false;
                 continue;
 
             }
-            IScanEvent scanEvent = RawData.GetScanEventForScanNumber(scanCursor);
+            IScanEvent scanEvent = _rawData.GetScanEventForScanNumber(scanCursor);
             double precursor = scanEvent.GetReaction(0).PrecursorMass;
             productMasses.Add(Math.Round(precursor, 4));
             scanCursor++;
@@ -92,11 +93,11 @@ public class ThermoDatafile
 
     private ChromDatapoint[] GetChromatogram(ChromatogramSettings chromSettings)
     {
-        int FirstScan = RawData.RunHeader.FirstSpectrum;
-        int FinalScan = RawData.RunHeader.LastSpectrum;
+        int FirstScan = _rawData.RunHeader.FirstSpectrum;
+        int FinalScan = _rawData.RunHeader.LastSpectrum;
 
 
-        IChromatogramDataPlus chromData = RawData.GetChromatogramDataEx([chromSettings], FirstScan, FinalScan);
+        IChromatogramDataPlus chromData = _rawData.GetChromatogramDataEx([chromSettings], FirstScan, FinalScan);
         ChromatogramSignal chromTrace = ChromatogramSignal.FromChromatogramData(chromData)[0];
         List<ChromDatapoint> datapoints = [];
         for (int i = 0; i < chromTrace.Length; i++)
@@ -132,7 +133,7 @@ public class ThermoDatafile
     }
     private void CheckIsValidScanNumber(int scanNumber)
     {
-        if (scanNumber < RawData.RunHeader.FirstSpectrum || scanNumber > RawData.RunHeader.LastSpectrum)
+        if (scanNumber < _rawData.RunHeader.FirstSpectrum || scanNumber > _rawData.RunHeader.LastSpectrum)
         {
             throw new ArgumentException("That is not a valid scan number for this file");
         }

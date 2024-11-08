@@ -7,9 +7,9 @@ public class DatafileController
     private readonly Form1 View;
 
     private ThermoDatafile? _datafile;
-    private MassSpectrumWindow _spectrumWindow;
+    private MassSpectrumWindow? _spectrumWindow;
 
-    public ChromDatapoint[]? CurrentChrom;
+    private ChromDatapoint[]? _currentChrom;
     public ChromatogramType ChromType { get; set; } = ChromatogramType.BPC;
     public string FilePath { get; private set; } = "Choose a datafile...";
 
@@ -33,9 +33,9 @@ public class DatafileController
     }
     private void PlotChromatogram()
     {
-        if (CurrentChrom == null) return;
-        double[] xData = CurrentChrom.Select(d => d.RetentionTime).ToArray();
-        double[] yData = CurrentChrom.Select(d => d.Intensity).ToArray();
+        if (_currentChrom == null) return;
+        double[] xData = _currentChrom.Select(d => d.RetentionTime).ToArray();
+        double[] yData = _currentChrom.Select(d => d.Intensity).ToArray();
         View.PlotChromatogram(xData, yData);
     }
     private void SetChromatogram()
@@ -45,13 +45,13 @@ public class DatafileController
             switch (ChromType)
             {
                 case ChromatogramType.BPC:
-                    CurrentChrom = _datafile.GetBasePeakChromatogram();
+                    _currentChrom = _datafile.GetBasePeakChromatogram();
                     break;
                 case ChromatogramType.TIC:
-                    CurrentChrom = _datafile.GetUnfilteredChromatogram();
+                    _currentChrom = _datafile.GetUnfilteredChromatogram();
                     break;
                 case ChromatogramType.Unfiltered:
-                    CurrentChrom = _datafile.GetUnfilteredChromatogram();
+                    _currentChrom = _datafile.GetUnfilteredChromatogram();
                     break;
                 default:
                     break;
@@ -60,18 +60,18 @@ public class DatafileController
     }
     public int GetNearestScanNumber(double retentionTime)
     {
-
-        return CurrentChrom.OrderBy(d => Math.Abs(d.RetentionTime - retentionTime))
+        if (_currentChrom == null) return -1;
+        return _currentChrom.OrderBy(d => Math.Abs(d.RetentionTime - retentionTime))
                             .First()
                             .Scan;
     }
     public double? GetBasePeakMass(int scanNumber)
     {
-        return Array.Find(CurrentChrom, d => d.Scan == scanNumber).BasePeakMass;
+        return Array.Find(_currentChrom!, d => d.Scan == scanNumber)?.BasePeakMass;
     }
     public void GetMsSpectrum(int scanNumber)
     {
-        (MSDatapoint[] datapoints, bool isCentroidSpectrum) = _datafile.GetMassSpectrum(scanNumber);
+        (MSDatapoint[] datapoints, bool isCentroidSpectrum) = _datafile!.GetMassSpectrum(scanNumber);
         if (isCentroidSpectrum)
         {
             datapoints = BufferPeaksWithZeros(datapoints);

@@ -3,20 +3,17 @@
 internal class IsotopeDetectionService
 {
     private readonly double ProtonMass = 1.003;
-
-    public IsotopeGroup[]? IsotopeGroups { get; internal set; }
-    private MSDatapoint[] CentroidPeaks { get; init; }
-
+    private readonly MSDatapoint[] _centroidPeaks;
     private readonly HashSet<MSDatapoint> PeaksInGroup = [];
 
     public IsotopeDetectionService(MSDatapoint[] centroidPeaks)
     {
-        CentroidPeaks = centroidPeaks;
+        _centroidPeaks = centroidPeaks;
     }
     internal IsotopeGroup[] GroupIntoIsotopeEnvelopes()
     {
         List<IsotopeGroup> isotopeGroups = [];
-        MSDatapoint[] intensityOrdered = CentroidPeaks.OrderByDescending(p => p.Intensity).ToArray();
+        MSDatapoint[] intensityOrdered = _centroidPeaks.OrderByDescending(p => p.Intensity).ToArray();
         foreach (MSDatapoint p in intensityOrdered)
         {
             if (PeaksInGroup.Contains(p))
@@ -192,7 +189,7 @@ internal class IsotopeDetectionService
             findNeighbours = q => q.Mz < target.Mz + 1.1 && q.Mz > target.Mz + 0.01;
 
         }
-        MSDatapoint[] neighbours = CentroidPeaks.Where(findNeighbours).ToArray();
+        MSDatapoint[] neighbours = _centroidPeaks.Where(findNeighbours).ToArray();
 
         if (checkDown)
         {

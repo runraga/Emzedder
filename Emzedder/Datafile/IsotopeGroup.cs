@@ -28,7 +28,7 @@ internal class IsotopeGroup
     }
     public bool IsEmpty()
     {
-        return IsotopePeaks.Count == 0 ? true : false;
+        return IsotopePeaks.Count == 0;
     }
 
 }

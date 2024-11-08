@@ -59,7 +59,7 @@ internal class ThermoSpectrum
                 Mz = Math.Round(scan.Positions[i], 4)
             });
         }
-        ProfileData = profileData.ToArray();
+        ProfileData = [.. profileData];
     }
 
 }
