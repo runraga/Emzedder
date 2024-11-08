@@ -62,7 +62,7 @@
             chooseDatafileButton.TabIndex = 0;
             chooseDatafileButton.Text = "Open Data file";
             chooseDatafileButton.UseVisualStyleBackColor = true;
-            chooseDatafileButton.Click += chooseDatafileButton_Click;
+            chooseDatafileButton.Click += ChooseDatafileButton_Click;
             // 
             // datafilePathLabel
             // 

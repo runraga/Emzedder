@@ -17,9 +17,4 @@
   <ItemGroup>
     <ProjectReference Include="..\Emzedder\Emzedder.csproj" />
   </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="ViewModel\" />
-  </ItemGroup>
-
 </Project>

@@ -1,22 +1,60 @@
 ﻿using Emzedder.Datafile;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 
 namespace EmzedderWinForms.Controller;
 
-public class DatafileController
+public class DatafileController : IDatafileController
 {
-    private readonly Form1 View;
 
     private ThermoDatafile? _datafile;
-    private MassSpectrumWindow? _spectrumWindow;
-
     private ChromDatapoint[]? _currentChrom;
-    public ChromatogramType ChromType { get; set; } = ChromatogramType.BPC;
-    public string FilePath { get; private set; } = "Choose a datafile...";
 
-    public DatafileController(Form1 view)
+    public ChromatogramType ChromType { get; set; } = ChromatogramType.BPC;
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+
+    private string _filePath = "Choose a datafile...";
+    public string FilePath
     {
-        View = view;
+        get => _filePath;
+        private set
+        {
+            if (_filePath != value)
+            {
+                _filePath = value;
+                OnPropertyChanged();
+            }
+        }
     }
+    private (double[], double[])? _chromatogramDatapoints;
+    public (double[], double[])? ChromatogramDatapoints
+    {
+        get => _chromatogramDatapoints;
+        private set
+        {
+            if (_chromatogramDatapoints != value)
+            {
+                _chromatogramDatapoints = value;
+                OnPropertyChanged();
+            }
+        }
+    }
+    private (double[], double[])? _spectrumDatapoints;
+    public (double[], double[])? SpectrumDatapoints
+    {
+        get => _spectrumDatapoints;
+        private set
+        {
+            if (_spectrumDatapoints != value)
+            {
+                _spectrumDatapoints = value;
+                OnPropertyChanged();
+            }
+        }
+    }
+
+
     public void OpenDatafile(string filePath)
     {
         FilePath = filePath;
@@ -25,18 +63,14 @@ public class DatafileController
         SetChromatogram();
         PlotChromatogram();
 
-        View.UpdateFileNameLabel(filePath);
-    }
-    public void AddSpectrumWindow(MassSpectrumWindow spectrumWindow)
-    {
-        _spectrumWindow = spectrumWindow;
+
     }
     private void PlotChromatogram()
     {
         if (_currentChrom == null) return;
         double[] xData = _currentChrom.Select(d => d.RetentionTime).ToArray();
         double[] yData = _currentChrom.Select(d => d.Intensity).ToArray();
-        View.PlotChromatogram(xData, yData);
+        ChromatogramDatapoints = (xData, yData);
     }
     private void SetChromatogram()
     {
@@ -76,11 +110,11 @@ public class DatafileController
         {
             datapoints = BufferPeaksWithZeros(datapoints);
         }
-        _spectrumWindow = new MassSpectrumWindow(this);
-        _spectrumWindow.Show();
+        MassSpectrumWindow spectrumWindow = new MassSpectrumWindow(this);
+        spectrumWindow.ShowWindow();
         double[] xData = datapoints.Select(d => d.Mz).ToArray();
         double[] yData = datapoints.Select(d => d.Intensity).ToArray();
-        _spectrumWindow.PlotSpectrum(xData, yData);
+        SpectrumDatapoints = (xData, yData);
 
     }
     public MSDatapoint[] BufferPeaksWithZeros(MSDatapoint[] datapoints)
@@ -94,6 +128,10 @@ public class DatafileController
 
         }
         return zeroBufferedList.ToArray();
+    }
+    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null!)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }
 public enum ChromatogramType

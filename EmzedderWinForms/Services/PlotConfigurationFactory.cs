@@ -1,11 +1,11 @@
 ﻿
-using ScottPlot.WinForms;
+using ScottPlot;
 
 namespace EmzedderWinForms.Services;
 
 public static class PlotConfigurationFactory
 {
-    public static void SetZoomBehaviour(FormsPlot plot)
+    public static void SetZoomBehaviour(IPlotControl plot)
     {
         List<ScottPlot.Interactivity.IUserActionResponse> responses = plot.UserInputProcessor.UserActionResponses;
         ScottPlot.Interactivity.IUserActionResponse? zoomResponse = plot.UserInputProcessor.UserActionResponses.Find(d => d is ScottPlot.Interactivity.UserActionResponses.MouseWheelZoom);
