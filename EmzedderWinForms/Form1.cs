@@ -21,7 +21,7 @@ public partial class Form1 : Form
     private void RegisterListeners()
     {
         formsPlot1.Plot.RenderManager.AxisLimitsChanged += ChromPlot_ZoomChanged;
-        formsPlot1.MouseDown += ChromPlot_RightClick;
+        formsPlot1.MouseDown += RightClickPlot_OpenSpectrum;
         formsPlot1.MouseMove += MouseMove_ShowTooltip;
         formsPlot1.MouseMove += ChromPlot_UpdateVerticalLineTracker;
         datafilePathLabel.DataBindings.Add("Text", _control, nameof(_control.FilePath));
@@ -95,7 +95,7 @@ public partial class Form1 : Form
             formsPlot1.Plot.Axes.SetLimits(left, right, bottom, top);
         }
     }
-    public void ChromPlot_RightClick(Object? sender, MouseEventArgs e)
+    public void RightClickPlot_OpenSpectrum(Object? sender, MouseEventArgs e)
     {
         if (e.Button == MouseButtons.Right)
         {
