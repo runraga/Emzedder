@@ -56,29 +56,6 @@ namespace EmzedderWinForms
             timer1.Start();
 
         }
-        private void label1_Click(object sender, EventArgs e)
-        {
-
-        }
-
-
-        private void button4_Click(object sender, EventArgs e)
-        {
-
-        }
-
-
-        private void closeButton_Click(object sender, EventArgs e)
-        {
-            this.Close();
-        }
-
-
-
-        private void label3_Click(object sender, EventArgs e)
-        {
-
-        }
 
         private void startButton_Click(object sender, EventArgs e)
         {
